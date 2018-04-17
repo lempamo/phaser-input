@@ -27,6 +27,7 @@ module PhaserInput {
         textAlign?: string;
         selectionColor?: string;
         zoom?: boolean;
+        multiLine?: boolean;
     }
 
     export class InputField extends Phaser.Sprite {
@@ -61,6 +62,8 @@ module PhaserInput {
         public focusIn: Phaser.Signal = new Phaser.Signal();
 
         public focusOut: Phaser.Signal = new Phaser.Signal();
+        
+        public keyPress: Phaser.Signal = new Phaser.Signal();
 
         get width(): number {
             return this.inputOptions.width;
@@ -88,6 +91,7 @@ module PhaserInput {
             this.inputOptions.fillAlpha = (inputOptions.fillAlpha === undefined) ? 1 : inputOptions.fillAlpha;
             this.inputOptions.selectionColor = inputOptions.selectionColor || 'rgba(179, 212, 253, 0.8)';
             this.inputOptions.zoom = (!game.device.desktop) ? inputOptions.zoom || false : false;
+            this.inputOptions.multiLine = inputOptions.multiLine || false;
 
             //create the input box
             this.box = new InputBox(this.game, inputOptions);
@@ -153,6 +157,8 @@ module PhaserInput {
                     }
                 }
             });
+            
+            if (inputOption.multiLine) this.focusOutOnEnter = false;
         }
 
         private updateTextAlignment(): void {
@@ -497,6 +503,7 @@ module PhaserInput {
         private keyListener(evt: KeyboardEvent)
         {
             this.value = this.getFormattedText(this.domElement.value);
+            this.keyPress.dispatch(evt.keyCode);
             if (evt.keyCode === 13) {
                 if(this.focusOutOnEnter) {
                     this.endFocus();
